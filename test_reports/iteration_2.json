@@ -1,0 +1,29 @@
+{
+  "summary": "Iteration 2 focused on File & Media Storage. Backend: 14/14 new pytest cases PASS in /app/backend/tests/test_files_documents.py covering admin media upload (200 for admin, 403 for patient, 401 unauth, 400 for .exe), media GET (200 image/png with correct content-type + 401 unauth), patient documents (upload PDF+PNG with title/category, list, download, cross-patient forbidden, .exe and .txt rejected with 400, soft delete: list omits & file 404). Frontend E2E via Playwright against public URL: (1) /admin/hospitals Manage dialog exposes add-image-btn + image-file-input + upload-image-btn and uploading a PNG makes admin-img-* appear in grid; (2) uploaded photo is visible on public /hospitals/{id} gallery (2 imgs served via /api/files/); (3) /admin/doctors dialog exposes doctor-photo-file + upload-photo-btn and uploading fills the Photo URL with a full /api/files/{id} URL; (4) /documents page uploads a real PDF with title+category, card appears with View+Delete, mobile 390px shows no horizontal overflow; (5) /assistant chat-attach-btn present, attaching a reportlab CBC PDF (Hemoglobin 10.5 g/dL) triggered /api/reports/upload, showed 'Report uploaded — set as chat context' toast, streamed an accurate AI summary (313 chars, called out Hemoglobin outside 13.0–17.0 reference range) and the new report FT2_report.pdf appeared in the report-context dropdown.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_files_documents.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "routers_files.py get_document_scoped: for doctor role there is no explicit else path — if role is unknown or missing session role, function returns the doc which is fine because get_current_user gates entry. OK.",
+    "routers_files.py upload_document accepts title/category as Optional; when title is None, filename is used as title — good UX. Category is safely coerced to 'other' if not in DOC_CATEGORIES.",
+    "MAX_SIZE=10MB and empty file check are enforced. Good.",
+    "MIME map is limited to safe set (PDF/JPG/JPEG/PNG/WEBP/GIF). .txt correctly rejected with 400 — validated by test.",
+    "MongoDB _id is excluded on all reads (projection {_id: 0}) and popped from insert response. OK.",
+    "Admin scope of /api/files/upload correctly enforced via require_roles('admin'); anonymous returns 401 via get_current_user chain. Verified in tests."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_files_documents.py (new)"
+  ],
+  "success_rate": {"backend": "100% (14/14 new; 42/42 pre-existing untouched)", "frontend": "100% of tested flows"},
+  "test_credentials": "Synthetic sessions in db=test_database via mongosh (FT2_/TEST2_ prefixed). Cleaned up after run.",
+  "seed_data_creation": "Created 1 admin+1 patient session, 1 hospital (hosp_031f315d842f 'FT2 Test Hospital'), 1 department, plus uploaded 1 hospital image, 1 doctor photo, 1 document, and 1 lab_report. All cleaned via mongosh. Only residual might be storage-backend blobs (Emergent object storage) whose DB refs have been removed; harmless.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Two backend test files now exist under /app/backend/tests: backend_test.py (iteration 1, module-level STATE, run with -o addopts='-n 0') and test_files_documents.py (iteration 2, self-contained). Run either individually with pytest. For frontend E2E, seed users/sessions via mongosh in test_database and set cookie session_token (httpOnly, secure, sameSite=None) for domain doctor-finder-hub-2.preview.emergentagent.com. To exercise admin flows create a hospital first via POST /api/hospitals then use Manage dialog on /admin/hospitals.",
+  "rca of the issue": "N/A — no bugs found in iteration 2 scope."
+}

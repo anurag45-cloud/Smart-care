@@ -22,6 +22,22 @@ export default function AdminDoctors() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_DOCTOR);
   const [busy, setBusy] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+
+  const uploadPhoto = async () => {
+    if (!photoFile) return;
+    setPhotoUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", photoFile);
+      const r = await api.post("/files/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      setForm((f) => ({ ...f, photo_url: `${process.env.REACT_APP_BACKEND_URL}${r.data.url}` }));
+      toast.success("Photo uploaded");
+      setPhotoFile(null);
+    } catch (e) { toast.error(e.friendlyMessage); }
+    finally { setPhotoUploading(false); }
+  };
 
   const load = useCallback(() => {
     api.get("/doctors").then((r) => setDoctors(r.data.doctors)).catch(() => setDoctors([]));
@@ -146,7 +162,16 @@ export default function AdminDoctors() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="sm:col-span-2"><Label>Photo URL</Label><Input value={form.photo_url} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} className="rounded-xl mt-1.5" data-testid="doctor-photo-input" /></div>
+            <div className="sm:col-span-2">
+              <Label>Photo URL</Label>
+              <div className="flex gap-2 mt-1.5">
+                <Input value={form.photo_url} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} className="rounded-xl flex-1" data-testid="doctor-photo-input" />
+                <Input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} className="rounded-xl w-44" data-testid="doctor-photo-file" />
+                <button type="button" onClick={uploadPhoto} disabled={!photoFile || photoUploading} className="bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-xl whitespace-nowrap flex items-center gap-1.5" data-testid="upload-photo-btn">
+                  {photoUploading && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Upload
+                </button>
+              </div>
+            </div>
             <div className="sm:col-span-2"><Label>Bio</Label><Textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={2} className="rounded-xl mt-1.5" data-testid="doctor-bio-input" /></div>
           </div>
           <p className="text-xs text-slate-400 mt-3">Default schedule: Mon–Sat, 09:00–17:00, 30-minute slots. The doctor can change this from their Schedule page.</p>

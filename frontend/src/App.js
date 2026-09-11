@@ -14,6 +14,7 @@ import Appointments from "./pages/patient/Appointments";
 import Records from "./pages/patient/Records";
 import Reports from "./pages/patient/Reports";
 import ReportDetail from "./pages/patient/ReportDetail";
+import Documents from "./pages/patient/Documents";
 import Assistant from "./pages/patient/Assistant";
 import NotificationsPage from "./pages/NotificationsPage";
 import Profile from "./pages/Profile";
@@ -62,6 +63,7 @@ function AppRouter() {
         <Route path="/records" element={<Records />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/reports/:id" element={<ReportDetail />} />
+        <Route path="/documents" element={<Documents />} />
         <Route path="/assistant" element={<Assistant />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/profile" element={<Profile />} />

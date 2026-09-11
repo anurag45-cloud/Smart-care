@@ -24,6 +24,8 @@ export default function AdminHospitals() {
   const [managing, setManaging] = useState(null);
   const [detail, setDetail] = useState(null);
   const [newImage, setNewImage] = useState({ url: "", image_type: "exterior", caption: "" });
+  const [imgFile, setImgFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [newDept, setNewDept] = useState({ name: "", description: "" });
   const [newFacility, setNewFacility] = useState("");
   const [busy, setBusy] = useState(false);
@@ -73,6 +75,26 @@ export default function AdminHospitals() {
       setNewImage({ url: "", image_type: "exterior", caption: "" });
       openManage(managing);
     } catch (e) { toast.error(e.friendlyMessage); }
+  };
+
+  const uploadImage = async () => {
+    if (!imgFile) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", imgFile);
+      const r = await api.post("/files/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      await api.post(`/hospitals/${managing.hospital_id}/images`, {
+        url: `${process.env.REACT_APP_BACKEND_URL}${r.data.url}`,
+        image_type: newImage.image_type,
+        caption: newImage.caption || imgFile.name,
+      });
+      toast.success("Image uploaded");
+      setImgFile(null);
+      setNewImage({ url: "", image_type: "exterior", caption: "" });
+      openManage(managing);
+    } catch (e) { toast.error(e.friendlyMessage); }
+    finally { setUploading(false); }
   };
 
   const removeImage = async (imageId) => {
@@ -189,7 +211,13 @@ export default function AdminHospitals() {
                     <SelectContent>{IMAGE_TYPES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}</SelectContent>
                   </Select>
                   <Input placeholder="Caption" value={newImage.caption} onChange={(e) => setNewImage({ ...newImage, caption: e.target.value })} className="rounded-xl" data-testid="image-caption-input" />
-                  <button onClick={addImage} disabled={!newImage.url} className="bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-xl" data-testid="add-image-btn">Add</button>
+                  <button onClick={addImage} disabled={!newImage.url} className="bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-xl" data-testid="add-image-btn">Add URL</button>
+                </div>
+                <div className="grid sm:grid-cols-[1fr_auto] gap-2 mb-3 items-center">
+                  <Input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" onChange={(e) => setImgFile(e.target.files?.[0] || null)} className="rounded-xl" data-testid="image-file-input" />
+                  <button onClick={uploadImage} disabled={!imgFile || uploading} className="bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-xl flex items-center gap-1.5" data-testid="upload-image-btn">
+                    {uploading && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Upload file
+                  </button>
                 </div>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                   {(detail.images || []).map((img) => (

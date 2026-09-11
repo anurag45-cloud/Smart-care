@@ -16,10 +16,11 @@ from routers_medical import router as medical_router  # noqa: E402
 from routers_reports import router as reports_router  # noqa: E402
 from routers_ai import router as ai_router  # noqa: E402
 from routers_misc import router as misc_router  # noqa: E402
+from routers_files import router as files_router  # noqa: E402
 
 app = FastAPI(title="SmartCare AI")
 
-for r in [auth_router, hospitals_router, appointments_router, medical_router, reports_router, ai_router, misc_router]:
+for r in [auth_router, hospitals_router, appointments_router, medical_router, reports_router, ai_router, misc_router, files_router]:
     app.include_router(r, prefix="/api")
 
 app.add_middleware(
@@ -47,6 +48,7 @@ async def create_indexes():
     await db.appointments.create_index("patient_id")
     await db.notifications.create_index("user_id")
     await db.lab_reports.create_index("patient_id")
+    await db.documents.create_index("patient_id")
     try:
         import asyncio
         from storage import init_storage

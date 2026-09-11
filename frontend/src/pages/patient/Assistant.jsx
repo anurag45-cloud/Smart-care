@@ -4,7 +4,8 @@ import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
 import { PageHeader } from "../../components/common";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Sparkles, Send, Loader2, ShieldAlert, Plus, User as UserIcon } from "lucide-react";
+import { Sparkles, Send, Loader2, ShieldAlert, Plus, User as UserIcon, Paperclip } from "lucide-react";
+import { toast } from "sonner";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -26,6 +27,8 @@ export default function Assistant() {
   const [reports, setReports] = useState([]);
   const [reportId, setReportId] = useState(params.get("report") || "all");
   const bottomRef = useRef(null);
+  const attachRef = useRef(null);
+  const [attaching, setAttaching] = useState(false);
 
   useEffect(() => {
     api.get("/ai/conversations").then((r) => setConversations(r.data.conversations)).catch(() => {});
@@ -42,9 +45,10 @@ export default function Assistant() {
     setMessages(r.data.messages.map((m) => ({ role: m.role, content: m.content })));
   };
 
-  const send = async (text) => {
+  const send = async (text, ctxReportId) => {
     const message = (text ?? input).trim();
     if (!message || streaming) return;
+    const effectiveReportId = ctxReportId ?? (reportId === "all" ? null : reportId);
     setInput("");
     setMessages((m) => [...m, { role: "user", content: message }, { role: "assistant", content: "" }]);
     setStreaming(true);
@@ -53,7 +57,7 @@ export default function Assistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ message, conversation_id: activeConv, report_id: reportId === "all" ? null : reportId }),
+        body: JSON.stringify({ message, conversation_id: activeConv, report_id: effectiveReportId }),
       });
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -95,6 +99,26 @@ export default function Assistant() {
       });
     } finally {
       setStreaming(false);
+    }
+  };
+
+  const attach = async (file) => {
+    if (!file || attaching) return;
+    setAttaching(true);
+    const form = new FormData();
+    form.append("file", file);
+    form.append("title", file.name);
+    try {
+      const r = await api.post("/reports/upload", form, { headers: { "Content-Type": "multipart/form-data" } });
+      setReports((prev) => [r.data, ...prev]);
+      setReportId(r.data.report_id);
+      toast.success("Report uploaded — set as chat context");
+      send(`I've just uploaded a report titled "${r.data.title}". Please summarize it and highlight anything outside the reference range.`, r.data.report_id);
+    } catch (e) {
+      toast.error(e.friendlyMessage);
+    } finally {
+      setAttaching(false);
+      if (attachRef.current) attachRef.current.value = "";
     }
   };
 
@@ -161,6 +185,10 @@ export default function Assistant() {
 
           <div className="p-4 border-t border-slate-100">
             <div className="flex gap-2">
+              <input ref={attachRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => attach(e.target.files?.[0])} data-testid="chat-attach-input" />
+              <button onClick={() => attachRef.current?.click()} disabled={attaching || streaming} className="h-11 w-11 rounded-xl border border-slate-200 hover:border-teal-500 hover:text-teal-600 disabled:opacity-50 text-slate-500 flex items-center justify-center transition-all" data-testid="chat-attach-btn" aria-label="Attach a report file" title="Attach a report (PDF/JPG/PNG)">
+                {attaching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
+              </button>
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

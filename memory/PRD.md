@@ -28,6 +28,17 @@ AI operational predictions, admin analytics, security/audit).
 Patient (books, uploads reports, chats with AI), Doctor (schedule, appointments, notes,
 prescriptions, lab requests, leave), Admin (hospitals, doctors, users, leave review, stats).
 
+## Implemented (2026-09-11, v1.1 — File & media storage)
+- Admin media library: POST /api/files/upload (admin-only, PDF/JPG/PNG/WEBP/GIF ≤10MB) →
+  Emergent object storage; GET /api/files/{id} authenticated serving. Wired into hospital
+  gallery (Manage dialog: upload file or paste URL) and doctor photo upload.
+- Patient "My Documents" library (/documents): upload/list/view/soft-delete with categories
+  (prescription/lab/scan/insurance/id/other), strict owner scoping, doctor access only with
+  existing appointment relationship.
+- AI Assistant chat attach (paperclip): uploads a report file mid-conversation, auto-sets it
+  as chat context and asks for a summary (reuses report extraction + AI pipeline).
+- Testing: 14/14 new backend cases + frontend E2E pass (iteration_2.json).
+
 ## Implemented (2026-09-11, v1)
 - Emergent Google OAuth, session cookies + Bearer fallback, role-based guards, audit logs
 - Hospital CRUD + search (name/city/dept/specialty, filters, sort, pagination), images,

@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../lib/api";
 import {
   LayoutDashboard, Building2, Stethoscope, CalendarDays, FileText, FlaskConical,
-  Sparkles, Bell, User, Users, CalendarClock, ClipboardList, Menu, LogOut, HeartPulse,
+  Sparkles, Bell, User, Users, CalendarClock, ClipboardList, Menu, LogOut, HeartPulse, FolderOpen,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -19,6 +19,7 @@ const NAV = {
     { to: "/appointments", icon: CalendarDays, label: "Appointments" },
     { to: "/records", icon: FileText, label: "Medical Records" },
     { to: "/reports", icon: FlaskConical, label: "Lab Reports" },
+    { to: "/documents", icon: FolderOpen, label: "My Documents" },
     { to: "/assistant", icon: Sparkles, label: "AI Assistant" },
     { to: "/notifications", icon: Bell, label: "Notifications" },
     { to: "/profile", icon: User, label: "Profile" },
