@@ -1,0 +1,120 @@
+{
+  "project_name": "SmartCare AI",
+  "theme": "Light",
+  "design_archetype": "Organic & Earthy / Clean Medical Precision",
+  "typography": {
+    "heading_font": "Outfit, sans-serif",
+    "body_font": "Inter, sans-serif",
+    "font_weights": {
+      "light": 300,
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "scale": {
+      "hero_h1": "text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight",
+      "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight",
+      "subsection_h3": "text-xl sm:text-2xl font-medium",
+      "card_h4": "text-lg font-semibold",
+      "body": "text-base text-slate-600 leading-relaxed",
+      "small_caption": "text-sm text-slate-500 font-medium",
+      "badge_label": "text-xs font-semibold tracking-wide uppercase"
+    }
+  },
+  "colors": {
+    "background": "#FFFFFF",
+    "surface_card": "#F8FAFC",
+    "surface_card_alt": "#F1F5F9",
+    "primary_accent": "#0284C7",
+    "primary_hover": "#0369A1",
+    "secondary_teal": "#0D9488",
+    "success": "#16A34A",
+    "warning": "#D97706",
+    "critical_alert": "#DC2626",
+    "neutral_dark": "#0F172A",
+    "neutral_muted": "#64748B",
+    "border_subtle": "#E2E8F0",
+    "border_hover": "#CBD5E1",
+    "shadow_soft": "shadow-[0_4px_20px_-4px_rgba(15,23,42,0.06)]",
+    "shadow_hover": "shadow-[0_12px_28px_-6px_rgba(15,23,42,0.12)]"
+  },
+  "layout_and_spacing": {
+    "container_padding": "px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto",
+    "section_vertical_spacing": "py-16 lg:py-24",
+    "card_padding": "p-6 sm:p-8",
+    "grid_bento": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6",
+    "sidebar_width": "w-64 flex-shrink-0"
+  },
+  "components_and_ui_patterns": {
+    "navigation_header": "Sticky glassmorphic navbar with backdrop-blur-md bg-white/80 border-b border-slate-200 z-50",
+    "buttons": {
+      "primary": "bg-sky-600 hover:bg-sky-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm hover:shadow transition-all duration-200 active:scale-[0.98]",
+      "secondary": "bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium px-5 py-2.5 rounded-xl transition-colors duration-200",
+      "outline": "border border-slate-300 hover:border-sky-600 hover:text-sky-600 text-slate-700 font-medium px-5 py-2.5 rounded-xl transition-all duration-200",
+      "destructive": "bg-red-50 text-red-600 hover:bg-red-100 font-medium px-4 py-2 rounded-xl transition-colors"
+    },
+    "cards": "bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] hover:border-sky-200 transition-all duration-300",
+    "badges": "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 border border-sky-200/60",
+    "interactive_map": "Leaflet + OpenStreetMap integration with custom blue marker pins, popup hospital info, and get-directions button",
+    "ai_chatbot": "Fixed floating/docked smart panel with message history, report attachment context, typing indicator, and suggestion chips"
+  },
+  "image_urls": {
+    "hero_hospitals": [
+      {
+        "url": "https://images.unsplash.com/photo-1615770922480-0b9ae80afeba?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBob3NwaXRhbCUyMGJ1aWxkaW5nJTIwZXh0ZXJpb3IlMjBkb2N0b3JzJTIwbWVkaWNhbCUyMHN0YWZmfGVufDB8fHx8MTc4OTEzNzQ0MXww&ixlib=rb-4.1.0&q=85",
+        "description": "Modern medical center glass exterior",
+        "category": "hospital_gallery"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1580615631392-aeb060d526e4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBob3NwaXRhbCUyMGJ1aWxkaW5nJTIwZXh0ZXJpb3IlMjBkb2N0b3JzJTIwbWVkaWNhbCUyMHN0YWZmfGVufDB8fHx8MTc4OTEzNzQ0MXww&ixlib=rb-4.1.0&q=85",
+        "description": "Clean hospital wing architecture",
+        "category": "hospital_gallery"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1581250184222-19d5a475b20a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBob3NwaXRhbCUyMGJ1aWxkaW5nJTIwZXh0ZXJpb3IlMjBkb2N0b3JzJTIwbWVkaWNhbCUyMHN0YWZmfGVufDB8fHx8MTc4OTEzNzQ0MXww&ixlib=rb-4.1.0&q=85",
+        "description": "City specialty healthcare center",
+        "category": "hospital_gallery"
+      }
+    ],
+    "doctor_portraits": [
+      {
+        "url": "https://images.unsplash.com/photo-1612531385446-f7e6d131e1d0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHw0fHxkb2N0b3IlMjBwb3J0cmFpdCUyMG1lZGljYWwlMjBzdGV0aG9zY29wZSUyMGNsaW5pY2FsJTIwY29uc3VsdGF0aW9ufGVufDB8fHx8MTc4OTEzNzQ0N3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Male specialist physician portrait",
+        "category": "doctor_avatar"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1659353888906-adb3e0041693?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwyfHxkb2N0b3IlMjBwb3J0cmFpdCUyMG1lZGljYWwlMjBzdGV0aG9zY29wZSUyMGNsaW5pY2FsJTIwY29uc3VsdGF0aW9ufGVufDB8fHx8MTc4OTEzNzQ0N3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Female senior consultant doctor",
+        "category": "doctor_avatar"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1638202993928-7267aad84c31?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwxfHxkb2N0b3IlMjBwb3J0cmFpdCUyMG1lZGljYWwlMjBzdGV0aG9zY29wZSUyMGNsaW5pY2FsJTIwY29uc3VsdGF0aW9ufGVufDB8fHx8MTc4OTEzNzQ0N3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Cardiologist with stethoscope",
+        "category": "doctor_avatar"
+      }
+    ],
+    "lab_diagnostics": [
+      {
+        "url": "https://images.unsplash.com/photo-1582560475093-ba66accbc424?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwyfHxtZWRpY2FsJTIwbGFiJTIwbGFib3JhdG9yeSUyMHRlc3QlMjBjbGluaWNhbCUyMGhlYWx0aGNhcmV8ZW58MHx8fHwxNzg5MTM3NDUwDA&ixlib=rb-4.1.0&q=85",
+        "description": "Clinical lab report testing",
+        "category": "lab_reports"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1581091007718-0c50d599bfd0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHw0fHxtZWRpY2FsJTIwbGFiJTIwbGFib3JhdG9yeSUyMHRlc3QlMjBjbGluaWNhbCUyMGhlYWx0aGNhcmV8ZW58MHx8fHwxNzg5MTM3NDUwDA&ixlib=rb-4.1.0&q=85",
+        "description": "Microbiology sample analysis",
+        "category": "lab_reports"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Ensure all interactive controls and key information cards contain descriptive `data-testid` attributes.",
+    "Do NOT use transparent backgrounds on headers, dropdowns, modals, or floating AI panels.",
+    "Use Lucide-React icons for UI elements; avoid using AI emoji characters in UI buttons or badges.",
+    "Keep color cues purposeful: sky-blue for main actions, emerald-green for success states, amber for pending/rescheduled, red strictly for critical alerts or appointment cancellation.",
+    "For maps, render interactive Leaflet maps with custom popups, directions triggers, and marker pins.",
+    "Ensure complete responsive layout with role-based sidebar layout (Patient, Doctor, Admin).",
+    "Use Sonner for user toast feedback (booking confirmed, report uploaded, appointment rescheduled)."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": "Maintain clean medical clarity with generous whitespace, high-contrast readable typography, soft neutral borders, rounded corners (rounded-2xl for cards), zero visual clutter, and seamless accessibility across desktop and mobile screens."
+}

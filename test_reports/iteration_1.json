@@ -1,0 +1,42 @@
+{
+  "summary": "First full test iteration of SmartCare AI. Backend: 42/42 pytest cases PASS covering auth (patient/doctor/admin/anonymous), admin CRUD (hospital, image, departments, doctor), hospital search + filters + detail, appointment availability/booking/double-book prevention/reschedule/cancel/scope, leave apply+approve+availability blocking, medical records + prescriptions + lab tests + cross-patient forbidden, PDF report upload with real reportlab PDF (extraction_status=ok, AI summary generation via Emergent gpt-5.4), report file streaming and soft delete, AI chat SSE stream with conversation persistence and cross-user leak prevention, notifications and read-all. Frontend E2E via Playwright: landing, patient dashboard, hospital search + card + hospital profile with Leaflet map + tiles + Get Directions button, doctor profile with tomorrow date slot selection + confirm booking + toast + navigation to /appointments, appointments list with Cancel button, reports upload UI, assistant page with streaming chat producing a 433-char answer about hemoglobin, notifications page, doctor dashboard + appointments + patients, admin dashboard + hospitals + doctors + users + leave pages. No horizontal overflow at 390x844 on /dashboard, /hospitals, /appointments, /assistant, /reports.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/appointments/{id} (enrich_appointment)", "issue": "Nested hospital/doctor/patient objects use projections that omit the primary id fields (no hospital_id/doctor_id/user_id). This is not wrong per se but inconsistent with the flat fields; frontend consumers must use flat a.hospital_id/a.doctor_id."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "AdminUsers.jsx / AdminLeave.jsx", "issue": "useEffect(load, []) with load being an arrow-expression returning a Promise caused React to throw 'destroy is not a function' when navigating to /admin/users and /admin/leave, breaking those pages completely. Fixed in-place by wrapping in () => { load(); }.", "selector": "[data-testid=\"admin-users-page\"], [data-testid=\"admin-leave-page\"]", "priority": "HIGH (fixed)"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional polish) Consider also refactoring similar useEffect(load, [load]) patterns in AdminHospitals/AdminDoctors/DoctorAppointments/Appointments/DoctorSchedule to () => { load(); } for defensive consistency — currently safe only because those load fns use block bodies.",
+    "(Optional consistency) Include hospital_id/doctor_id/user_id fields in enrich_appointment projections so nested objects are self-referential."
+  ],
+  "critical_code_review_comments": [
+    "Bug fixed: AdminUsers.jsx and AdminLeave.jsx passed the async `load` function directly to useEffect. Because `load = () => api.get(...).then(...)` returns a Promise, React tried to call the returned Promise as a cleanup destroy function on unmount, throwing 'destroy is not a function' and crashing the components.",
+    "Storage layer (storage.py) uses synchronous requests inside async endpoint - correctly wrapped in asyncio.to_thread. OK.",
+    "auth.py: session cookie set with samesite='none' + secure — required for cross-site preview iframe; OK. Token also accepted via Authorization: Bearer header — good for API tests.",
+    "resolve_role attaches user_id to the matching doctors record on login — but only on the initial /auth/session creation; there is no reconciliation path if an admin creates a doctor AFTER a doctor user already logged in as patient. Admin would need to promote the user role manually via PUT /api/admin/users/{id}."
+  ],
+  "updated_files": [
+    "/app/frontend/src/pages/admin/AdminUsers.jsx",
+    "/app/frontend/src/pages/admin/AdminLeave.jsx",
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "100% (42/42)", "frontend": "100% of tested flows after fix"},
+  "test_credentials": "Emergent Google OAuth only. Synthetic sessions created in db=test_database (users + user_sessions collections) per /app/auth_testing.md. See backend_test.py fixtures.",
+  "seed_data_creation": "Cleaned up. Backend pytest self-seeds & cleans up (TEST_ prefixed). Frontend manual test used FT_ prefixed data which has been removed post-test. DB is back to empty.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend test file /app/backend/tests/backend_test.py is reusable — it uses pymongo to seed sessions in test_database, exercises all major endpoints including AI summary + AI chat SSE (requires network to Emergent LLM proxy). Run via `python -m pytest backend/tests/backend_test.py -o addopts='-n 0'` because tests share module-level STATE and must run serially. To test frontend, seed a hospital/doctor via admin API using a session token, then set the session_token cookie for domain doctor-finder-hub-2.preview.emergentagent.com (httpOnly, secure, samesite='None').",
+  "rca of the issue": "AdminUsers/AdminLeave crash RCA: React's useEffect contract requires the callback to return either undefined or a cleanup function. In AdminUsers.jsx L12-13 the code was `const load = () => api.get(...).then(...).catch(...); useEffect(load, [])`. The arrow-expression body implicitly returns the Promise from `.then()`. On mount React stores that Promise as the cleanup 'destroy' function; on next render/unmount it invokes `destroy()` which throws TypeError: 'destroy is not a function' — bubbling to React's error boundary which unmounts the subtree, so the [data-testid=admin-users-page] element never appears. Reproduced by simply navigating to /admin/users and /admin/leave as an admin user. Fixed by changing `useEffect(load, [])` to `useEffect(() => { load(); }, [])` so the effect returns undefined."
+}
