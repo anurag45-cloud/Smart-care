@@ -1,4 +1,4 @@
-import { Loader2, Inbox } from "lucide-react";
+import { Loader2, Inbox, ShieldCheck } from "lucide-react";
 import { Badge } from "./ui/badge";
 
 export function PageLoading() {
@@ -53,6 +53,23 @@ export function EmptyState({ title, description, action, testid }) {
     </div>
   );
 }
+
+const VERIFICATION = {
+  verified: { label: "Verified", cls: "bg-emerald-50 text-emerald-700 border-emerald-200", title: "Confirmed by the hospital administrator, an official source or a trusted provider." },
+  public_data: { label: "Public Data", cls: "bg-sky-50 text-sky-700 border-sky-200", title: "Imported from a public data provider; not independently verified by SmartCare AI." },
+  needs_review: { label: "Needs Review", cls: "bg-amber-50 text-amber-700 border-amber-200", title: "Information may be incomplete or duplicated." },
+  rejected: { label: "Rejected", cls: "bg-red-50 text-red-600 border-red-200", title: "Rejected by an administrator." },
+};
+
+export function VerificationBadge({ status, className = "" }) {
+  const v = VERIFICATION[status] || VERIFICATION.public_data;
+  return (
+    <span title={v.title} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${v.cls} ${className}`} data-testid={`verification-${status || "public_data"}`}>
+      {status === "verified" && <ShieldCheck className="h-3 w-3" />}{v.label}
+    </span>
+  );
+}
+
 
 export function formatDate(d) {
   if (!d) return "";

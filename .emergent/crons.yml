@@ -1,0 +1,9 @@
+crons:
+  - name: hospital-sync-weekly
+    description: "Weekly re-sync of imported hospital data (address, phone, hours, location) from the provider"
+    cron: "30 2 * * 0"
+    timezone: "Asia/Kolkata"
+    endpoint: "{{BASE_URL}}/api/cron/hospital-sync"
+    method: POST
+    # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
+    enabled: true

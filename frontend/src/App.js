@@ -28,6 +28,7 @@ import AdminHospitals from "./pages/admin/AdminHospitals";
 import AdminDoctors from "./pages/admin/AdminDoctors";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminLeave from "./pages/admin/AdminLeave";
+import AdminImport from "./pages/admin/AdminImport";
 
 function Protected({ roles, children }) {
   const { user, loading } = useAuth();
@@ -75,6 +76,7 @@ function AppRouter() {
         <Route path="/admin/doctors" element={<Protected roles={["admin"]}><AdminDoctors /></Protected>} />
         <Route path="/admin/users" element={<Protected roles={["admin"]}><AdminUsers /></Protected>} />
         <Route path="/admin/leave" element={<Protected roles={["admin"]}><AdminLeave /></Protected>} />
+        <Route path="/admin/import" element={<Protected roles={["admin"]}><AdminImport /></Protected>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

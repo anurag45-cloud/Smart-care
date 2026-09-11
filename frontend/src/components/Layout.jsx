@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../lib/api";
 import {
   LayoutDashboard, Building2, Stethoscope, CalendarDays, FileText, FlaskConical,
-  Sparkles, Bell, User, Users, CalendarClock, ClipboardList, Menu, LogOut, HeartPulse, FolderOpen,
+  Sparkles, Bell, User, Users, CalendarClock, ClipboardList, Menu, LogOut, HeartPulse, FolderOpen, DownloadCloud,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -35,6 +35,7 @@ const NAV = {
   admin: [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/admin/hospitals", icon: Building2, label: "Hospitals" },
+    { to: "/admin/import", icon: DownloadCloud, label: "Hospital Import" },
     { to: "/admin/doctors", icon: Stethoscope, label: "Doctors" },
     { to: "/admin/users", icon: Users, label: "Users" },
     { to: "/admin/leave", icon: ClipboardList, label: "Leave Requests" },

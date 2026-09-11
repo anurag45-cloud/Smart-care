@@ -26,9 +26,10 @@ class HospitalIn(BaseModel):
     postal_code: Optional[str] = ""
     latitude: float
     longitude: float
-    opening_hours: Optional[str] = "Open 24 hours"
-    emergency_available: bool = True
+    opening_hours: Optional[str] = ""
+    emergency_available: Optional[bool] = None
     specialties: Optional[List[str]] = []
+    area: Optional[str] = ""
 
 
 def serialize_hospital(h):
@@ -46,42 +47,26 @@ async def list_hospitals(
     sort: Optional[str] = "name",
     page: int = 1,
     limit: int = 12,
+    area: Optional[str] = None,
+    verification_status: Optional[str] = None,
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    radius_km: Optional[float] = None,
     user=Depends(get_current_user),
 ):
-    query = {}
-    if search:
-        rx = {"$regex": re.escape(search), "$options": "i"}
-        query["$or"] = [{"name": rx}, {"city": rx}, {"address": rx}, {"specialties": rx}]
-    if city:
-        query["city"] = {"$regex": f"^{re.escape(city)}$", "$options": "i"}
-    if hospital_type:
-        query["hospital_type"] = hospital_type
-    if emergency is not None:
-        query["emergency_available"] = emergency
-    if department:
-        dept_ids = [d["department_id"] for d in await db.departments.find(
-            {"name": {"$regex": re.escape(department), "$options": "i"}}, {"_id": 0}).to_list(100)]
-        hosp_ids = [d["hospital_id"] for d in await db.departments.find(
-            {"name": {"$regex": re.escape(department), "$options": "i"}}, {"_id": 0}).to_list(100)]
-        query["hospital_id"] = {"$in": hosp_ids}
-
-    sort_field = {"name": "name", "city": "city", "newest": "created_at"}.get(sort, "name")
-    total = await db.hospitals.count_documents(query)
-    hospitals = await db.hospitals.find(query, {"_id": 0}).sort(sort_field, 1).skip((page - 1) * limit).limit(limit).to_list(limit)
-
-    for h in hospitals:
-        h["doctor_count"] = await db.doctors.count_documents({"hospital_id": h["hospital_id"], "active": True})
-        h["departments"] = [d["name"] for d in await db.departments.find({"hospital_id": h["hospital_id"]}, {"_id": 0}).to_list(50)]
-        img = await db.hospital_images.find_one({"hospital_id": h["hospital_id"]}, {"_id": 0})
-        h["cover_image"] = img["url"] if img else None
-    return {"hospitals": hospitals, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+    from routers_discovery import search_hospitals, search_params
+    return await search_hospitals(search_params(search, city, area, hospital_type, department, emergency, verification_status, sort, page, limit, lat, lng, radius_km))
 
 
 @router.post("/hospitals")
 async def create_hospital(payload: HospitalIn, user=Depends(require_roles("admin"))):
     doc = payload.model_dump()
-    doc.update({"hospital_id": new_id("hosp"), "verified": True, "facilities": [], "created_at": utcnow(), "updated_at": utcnow()})
-    doc["slug"] = re.sub(r"[^a-z0-9]+", "-", doc["name"].lower()).strip("-")
+    from discovery_service import geo_point, norm_phone, slugify
+    doc.update({"hospital_id": new_id("hosp"), "verified": True, "verification_status": "verified", "data_source": "admin",
+                "external_provider": None, "external_provider_id": None, "area": "", "facilities": [], "data_version": 1,
+                "location": geo_point(doc["latitude"], doc["longitude"]), "phone_norm": norm_phone(doc["phone"]),
+                "created_at": utcnow(), "updated_at": utcnow()})
+    doc["slug"] = slugify(doc["name"], doc["city"])
     await db.hospitals.insert_one(doc)
     await audit(user["user_id"], "hospital_create", "hospital", doc["hospital_id"])
     doc.pop("_id", None)
@@ -93,9 +78,17 @@ async def get_hospital(hospital_id: str, user=Depends(get_current_user)):
     h = await db.hospitals.find_one({"hospital_id": hospital_id}, {"_id": 0})
     if not h:
         raise HTTPException(404, "Hospital not found")
-    h["images"] = await db.hospital_images.find({"hospital_id": hospital_id}, {"_id": 0}).to_list(100)
+    from routers_discovery import image_url
+    h.pop("phone_norm", None)
+    h.pop("history", None)
+    imgs = await db.hospital_images.find({"hospital_id": hospital_id}, {"_id": 0}).to_list(100)
+    for i in imgs:
+        i["url"] = image_url(i)
+    h["images"] = [i for i in imgs if i["url"]]
+    h["services"] = await db.hospital_services.find({"hospital_id": hospital_id}, {"_id": 0}).to_list(200)
     h["departments"] = await db.departments.find({"hospital_id": hospital_id}, {"_id": 0}).to_list(100)
     h["doctors"] = await db.doctors.find({"hospital_id": hospital_id, "active": True}, {"_id": 0}).to_list(200)
+    h["booking_available"] = len(h["doctors"]) > 0
     for d in h["doctors"]:
         dept = await db.departments.find_one({"department_id": d.get("department_id")}, {"_id": 0})
         d["department_name"] = dept["name"] if dept else ""
@@ -104,9 +97,10 @@ async def get_hospital(hospital_id: str, user=Depends(get_current_user)):
 
 @router.put("/hospitals/{hospital_id}")
 async def update_hospital(hospital_id: str, payload: HospitalIn, user=Depends(require_roles("admin"))):
+    from discovery_service import geo_point, norm_phone
     update = payload.model_dump()
-    update["updated_at"] = utcnow()
-    result = await db.hospitals.update_one({"hospital_id": hospital_id}, {"$set": update})
+    update.update({"updated_at": utcnow(), "location": geo_point(update["latitude"], update["longitude"]), "phone_norm": norm_phone(update["phone"])})
+    result = await db.hospitals.update_one({"hospital_id": hospital_id}, {"$set": update, "$inc": {"data_version": 1}})
     if result.matched_count == 0:
         raise HTTPException(404, "Hospital not found")
     await audit(user["user_id"], "hospital_update", "hospital", hospital_id)
